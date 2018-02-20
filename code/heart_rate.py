@@ -9,6 +9,8 @@ class ECG:
     def __init__(self, filename='test_data1.csv'):
         self.filename = filename
         self.import_csv()
+        self.find_volt_extrema()
+        self.find_duration()
         pass
 
     def import_csv(self):
@@ -25,10 +27,10 @@ class ECG:
         pass
 
     def find_volt_extrema(self):
-        pass
+        self.voltage_extremes = (amin(self.voltage), amax(self.voltage))
 
     def find_duration(self):
-        pass
+        self.duration = self.time[-1] - self.time[0]
 
     def find_num_beats(self):
         pass
