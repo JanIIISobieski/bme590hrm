@@ -27,3 +27,7 @@ def test_attributes():
 
 def test_export():
     pass
+
+
+from show_find_peaks import show_find_peaks
+show_find_peaks()
