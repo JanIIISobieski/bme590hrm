@@ -12,7 +12,10 @@ __license__ = "MIT"
 def detect_peaks(x, mph=None, mpd=1, threshold=0, edge='rising',
                  kpsh=False, valley=False, show=False, ax=None):
 
-    """Detect peaks in data based on their amplitude and other features.
+    """Detect peaks in data based on their amplitude and other features. Code
+    from Marcos Duarte, https://github.com/demotu/BMC. Code made available
+    through the MIT license. This program was utilized for peak-detection in
+    the auto-correlated function, as its syntax is similar to MatLab findpeaks.
 
     Parameters
     ----------
