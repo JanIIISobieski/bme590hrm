@@ -1,5 +1,7 @@
 class ECG:
-    '''Class to describe ECG trace data
+    '''Class to describe ECG trace data. Utilizes detect_peaks written by
+    Marcos Duarte and made available with the MIT license for the detection of
+    peaks in the auto-correlated signal
 
     :attribute filename (str): CSV filename from which data was imported
     :attribute time (array): sampled times of the ECG trace
@@ -147,10 +149,6 @@ class ECG:
 
     def find_beats(self):
         '''Class method to find the heart beats during the data set
-
-        Utilizes detect_peaks written by Marcos Duarte and made available with
-        the MIT license for the detection of peaks in the auto-correlated
-        signal
 
         :return beats (list): the times at which a heart beat was found
         '''
