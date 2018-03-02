@@ -25,17 +25,25 @@ class ECG:
         :param export (boolean, default=False): exports JSON file based on
             analysis
         '''
+        import logging
+
+        logging.basicConfig(filename="heart_rate.log",
+                            format='%(asctime)s %(message)s',
+                            datefmt='%m/%d/%Y %I:%M:%S %p')
+
         self.filename = filename
+        self.__run_flag = True
         self.units = units
-        self.import_csv()
-        self.find_volt_extrema()
-        self.find_duration()
-        self.find_beats()
-        self.find_num_beats()
-        self.find_mean_hr_bpm()
-        if export:
-            self.export_json()
-        pass
+        self.import_csv()  # can manipulate __run_flag if import file not found
+        if self.__run_flag:
+            self.find_volt_extrema()
+            self.find_duration()
+            self.find_beats()
+            self.find_num_beats()
+            self.find_mean_hr_bpm()
+
+            if export:
+                self.export_json()
 
     def import_csv(self):
         '''Class method to import CSV
@@ -49,12 +57,19 @@ class ECG:
         import os
         import numpy as np
 
-        full_file = os.path.join(os.path.dirname(__file__), '../test_data/',
-                                 self.filename)
-        imported_file = pandas.read_csv(full_file,
-                                        header=None,
-                                        names=['time', 'voltage'],
-                                        skipinitialspace=True)
+        try:
+            full_file = os.path.join(os.path.dirname(__file__),
+                                     '../test_data/',
+                                     self.filename)
+            imported_file = pandas.read_csv(full_file,
+                                            header=None,
+                                            names=['time', 'voltage'],
+                                            skipinitialspace=True)
+        except FileNotFoundError:
+            logging.error('Import file not found!')
+            logging.info('Terminating execution')
+            self.__run_flag = False
+            return
 
         time_vec = imported_file.time.values
         voltage_vec = imported_file.voltage.values
