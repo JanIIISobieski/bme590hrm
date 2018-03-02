@@ -102,3 +102,9 @@ spyder_reqs.txt
 
 # mypy
 .mypy_cache/
+
+# Test images
+*.png
+
+# Self testing program
+show_find_peaks.py
