@@ -1,10 +1,12 @@
 class ECG:
     def __init__(self, filename='test_data1.csv', units='sec'):
         self.filename = filename
+        self.units = units
         self.import_csv()
         self.find_volt_extrema()
         self.find_duration()
         self.find_beats()
+        self.find_mean_hr_bpm()
         pass
 
     def import_csv(self):
@@ -56,15 +58,34 @@ class ECG:
 
         logging.info('Successfully imported CSV file')
 
-    def find_mean_hr_bpm(self, time_dur=1):
-        pass
+    def find_mean_hr_bpm(self, time_dur=60):
+        beat_times = self.beats
+
+        if time_dur >= self.duration:
+            self.mean_hr_bpm = 60*len(beat_times)/self.duration
+        else:
+            beat_num = len([i for i in beat_times if beat_times <= time_dur])
+            self.mean_hr_bpm = 60*beat_num/time_dur
+        print(self.mean_hr_bpm)
 
     def find_volt_extrema(self):
         from numpy import amin, amax
         self.voltage_extremes = (amin(self.voltage), amax(self.voltage))
 
     def find_duration(self):
-        self.duration = self.time[-1] - self.time[0]
+        import logging
+        if self.units == 'sec':
+            net_dur = self.time[-1] - self.time[0]
+        elif self.units == 'min':
+            net_dur = (self.time[-1] - self.time[0])*60
+        elif self.units == 'msec':
+            print('This program is not for hummingbirds')
+            net_dur = self.time[-1] - self.time[0]
+        else:
+            net_dur = self.duration
+            print('Assuming seconds for time')
+            logging.warning('Assuming seconds for time')
+        self.duration = net_dur
 
     def find_num_beats(self):
         self.num_beats = len(self.beats)
@@ -93,13 +114,17 @@ class ECG:
         pre_peak_index = detect_peaks(auto_corr, mpd=5, mph=0)
         sorted_auto_corr = sorted(auto_corr[pre_peak_index])
 
-        print(sorted_auto_corr)
-
-        first_dist = np.where(auto_corr == sorted_auto_corr[-1])[0][0]
-        beat_ind = detect_peaks(np.insert(auto_corr, 0, 0),
-                                mpd=0.8*first_dist,
-                                mph=0)
-        beat_ind = beat_ind - 1
+        beat_ind = np.asarray([0])
+        index = -1
+        while (beat_ind.size/self.duration < 0.3):
+            first_dist = np.where(auto_corr == sorted_auto_corr[index])[0][0]
+            beat_ind = detect_peaks(np.insert(auto_corr, 0, 0),
+                                    mpd=0.8*first_dist,
+                                    mph=0)
+            beat_ind = beat_ind - 1
+            index = index - 1
+            print(beat_ind.size)
+            print(index)
 
         self.auto_corr = auto_corr
         self.beat_index = beat_ind
