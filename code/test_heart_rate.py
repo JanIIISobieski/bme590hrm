@@ -42,6 +42,8 @@ def test_beat_finding():
     tot_beats_found = sum(num_beats_found)
 
     assert abs((tot_beats_actual - tot_beats_found)/(tot_beats_actual)) < 0.01
+    # net one percent error in the finding of the heart beats was considered
+    # acceptable for the purposes of the assignment
 
 
 def test_heart_rate():

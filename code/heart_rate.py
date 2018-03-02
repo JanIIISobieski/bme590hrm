@@ -11,15 +11,17 @@ class ECG:
     :attribute mean_hr_bpm (float): average heart rate over a user-specified
         time interval
     '''
-	def __init__(self, filename='test_data1.csv', units='sec', export=False):
-		'''__init__ method of the ECG class
+    def __init__(self, filename='test_data1.csv', units='sec', export=False):
+        '''__init__ method of the ECG class
 
         :param filename (str, default='test_data1.csv'): CSV file containing
             ECG trace data. Filename should include the .csv extension.
             File by default should be in a 'test_data' folder one level higher
             than where the module resides
-        :param analyze (boolean, default=True): runs all class methods during
-            initialization. If set to false, only imports time and voltage data
+        :param units (str, default='sec'): defines the time scale of the data.
+            By default set to 'sec' for seconds. 'Min' can also be passed.
+        :param export (boolean, default=False): exports JSON file based on
+            analysis
         '''
         self.filename = filename
         self.units = units
@@ -36,10 +38,11 @@ class ECG:
     def import_csv(self):
         '''Class method to import CSV
 
-        :return time (array): array of the sampled times in ECG trace
-        :return voltage (array): array of the sampled voltages in ECG trace
+        :return time (numpy array): array of the sampled times in ECG trace
+        :return voltage (numpy array): array of the sampled voltages in ECG
+            trace
         '''
-		import pandas
+        import pandas
         import logging
         import os
         import numpy as np
@@ -89,6 +92,16 @@ class ECG:
         logging.info('Successfully imported CSV file')
 
     def find_mean_hr_bpm(self, time_dur=60):
+        '''Class method to find the mean heart rate during the first specified
+            interval in data
+
+            :param time_dur (default=60): in seconds, the interval (starting
+                from 0 seconds) over which to count beats to calculate the
+                average spike rate. If time_dur is greater than the total
+                duration of the data set, the average heart rate over the
+                entire data set is given
+            :return mean_hr_bpm (float): the mean heart rate over the interval
+        '''
         beat_times = self.beats
 
         if time_dur >= self.duration:
@@ -102,16 +115,16 @@ class ECG:
 
         :return voltage_extremes (tuple): the minimum and maximum voltage
             values sampled
-        '''    
-		from numpy import amin, amax
+        '''
+        from numpy import amin, amax
         self.voltage_extremes = (amin(self.voltage), amax(self.voltage))
 
     def find_duration(self):
-        '''Class method to find the duration of ECG trace
+        '''Class method to find the duration of ECG trace in seconds
 
         :return duration (float): the total time of the sampled ECG
         '''
-		import logging
+        import logging
         if self.units == 'sec':
             net_dur = self.time[-1] - self.time[0]
         elif self.units == 'min':
@@ -126,9 +139,21 @@ class ECG:
         self.duration = net_dur
 
     def find_num_beats(self):
+        '''Class method to find the total number of beats in the data set
+
+            :return num_beats (int): the number of beats found by the program
+        '''
         self.num_beats = len(self.beats)
 
-    def find_beats(self, show_plot=True):
+    def find_beats(self):
+        '''Class method to find the heart beats during the data set
+
+        Utilizes detect_peaks written by Marcos Duarte and made available with
+        the MIT license for the detection of peaks in the auto-correlated
+        signal
+
+        :return beats (list): the times at which a heart beat was found
+        '''
         import numpy as np
         import logging
         from math import floor
@@ -165,6 +190,8 @@ class ECG:
         self.beats = self.time[beat_ind]
 
     def export_json(self):
+        '''Class method to export the class attributes as a JSON file
+        '''
         import json
         import logging
         import os
