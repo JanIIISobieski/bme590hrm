@@ -71,6 +71,7 @@ class ECG:
 
     def find_beats(self, show_plot=True):
         import numpy as np
+        import logging
         from math import floor
         from detect_peaks import detect_peaks
 
@@ -82,6 +83,7 @@ class ECG:
             voltage = voltage - np.polyval(baseline_coeffs, time)
         except np.linalg.LinAlgError:
             print('Could not remove baseline drift (if it exists)')
+            logging.warning('Could not remove baseline drift')
 
         unbias = voltage - np.mean(voltage)
         norm = sum(unbias**2)
