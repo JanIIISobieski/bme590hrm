@@ -1,12 +1,15 @@
 class ECG:
-    def __init__(self, filename='test_data1.csv', units='sec'):
+    def __init__(self, filename='test_data1.csv', units='sec', export=False):
         self.filename = filename
         self.units = units
         self.import_csv()
         self.find_volt_extrema()
         self.find_duration()
         self.find_beats()
+        self.find_num_beats()
         self.find_mean_hr_bpm()
+        if export:
+            self.export_json()
         pass
 
     def import_csv(self):
@@ -66,7 +69,6 @@ class ECG:
         else:
             beat_num = len([i for i in beat_times if beat_times <= time_dur])
             self.mean_hr_bpm = 60*beat_num/time_dur
-        print(self.mean_hr_bpm)
 
     def find_volt_extrema(self):
         from numpy import amin, amax
@@ -123,12 +125,27 @@ class ECG:
                                     mph=0)
             beat_ind = beat_ind - 1
             index = index - 1
-            print(beat_ind.size)
-            print(index)
 
-        self.auto_corr = auto_corr
-        self.beat_index = beat_ind
         self.beats = self.time[beat_ind]
 
-    def export_json():
-        pass
+    def export_json(self):
+        import json
+        import logging
+        import os
+
+        savefile = self.filename[:self.filename.rfind('.')] + '.json'
+        full_file = os.path.join(
+                os.path.dirname(__file__), '../JSON/') + savefile
+
+        run_dict = {'time': self.time.tolist(),
+                    'voltage': self.voltage.tolist(),
+                    'duration': self.duration,
+                    'voltage_extremes': self.voltage_extremes,
+                    'num_beats': self.num_beats,
+                    'beats': self.beats.tolist(),
+                    'units': self.units}
+
+        with open(full_file, 'w') as fp:
+            json.dump(run_dict, fp, sort_keys=True, indent=4)
+
+        logging.info('Saved JSON file successfully')

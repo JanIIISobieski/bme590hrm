@@ -35,8 +35,8 @@ def test_beat_finding():
                         7, 7, 19, 19]
     num_beats_found = []
     for csv_file in glob.glob(csv_loc):
-        test = ECG(filename=csv_file)
-        num_beats_found.append(len(test.beat_index))
+        test = ECG(filename=os.path.basename(csv_file), export=True)
+        num_beats_found.append(len(test.beats))
 
     tot_beats_actual = sum(num_beats_actual)
     tot_beats_found = sum(num_beats_found)
@@ -51,4 +51,15 @@ def test_heart_rate():
 
 
 def test_export():
-    pass
+    from heart_rate import ECG
+    import os
+    import json
+    import numpy as np
+
+    test = ECG()
+    json_loc = os.path.join(os.path.dirname(__file__),
+                            '../JSON/test_data1.json')
+    with open(json_loc, 'r') as fp:
+        json_import = json.load(fp)
+
+    assert np.allclose(test.voltage, json_import['voltage'])
