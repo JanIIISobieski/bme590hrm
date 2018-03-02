@@ -134,7 +134,11 @@ class ECG:
             values sampled
         '''
         from numpy import amin, amax
+        import logging
         self.voltage_extremes = (amin(self.voltage), amax(self.voltage))
+        ecg_range = 300
+        if (self.voltage_extremes[1] - self.voltage_extremes[0]) > ecg_range:
+            logging.warning('Data set exceeds ECG specifications')
 
     def find_duration(self):
         '''Class method to find the duration of ECG trace in seconds
